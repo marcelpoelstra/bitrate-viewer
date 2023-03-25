@@ -38,7 +38,7 @@ def main():
     graph_filename = Path(video_file).stem
 
     plot_results(results, graph_title, graph_filename)
-    print(f'Done. Check {graph_filename}.png and '
+    print(f'Done. Check {graph_filename}_bitrate.png and '
           f'{graph_filename}.{output_format}!')
 
 

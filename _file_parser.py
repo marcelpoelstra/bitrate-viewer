@@ -23,6 +23,18 @@ class FileParser:
 
         return seconds, bitrates_per_sec
 
+    def __calculate_gop_sizes(self, bitrates, keyframes):
+        gop_sizes = []
+        gop_start = 0
+
+        for keyframe in keyframes:
+            gop_end = round(keyframe * self.__fps)
+            gop_size = sum(bitrates[gop_start:gop_end]) // 8  # Convert to bytes
+            gop_sizes.append(gop_size)
+            gop_start = gop_end
+
+        return gop_sizes
+
     def __read_key_frame_time(self, frame) -> float:
         """
         reads frame time from pkt_pts_time if it exists
@@ -90,11 +102,15 @@ class FileParser:
         self.__fps = fps
         self.__filename = filename
 
+
         if format == 'xml':
             bitrates, keyframes, encoder = self.__load_xml()
         elif format == 'json':
             bitrates, keyframes, encoder = self.__load_json()
 
         seconds, bitrates_per_sec = self.__calculate_bitrate_per_sec(bitrates)
+        gop_sizes = self.__calculate_gop_sizes(bitrates, keyframes)
 
-        return tuple([seconds, bitrates_per_sec, keyframes, encoder])
+        return tuple([seconds, bitrates_per_sec, keyframes, encoder, gop_sizes])
+
+
